@@ -45,6 +45,9 @@ const AUDIO_DIR = path.join(__dirname, 'public', 'audio');
 if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 if (!fs.existsSync(AUDIO_DIR)) fs.mkdirSync(AUDIO_DIR, { recursive: true });
 
+// Async job store
+const jobs = {};
+
 // ─── ElevenLabs config ────────────────────────────────────────────────────────
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY || 'YOUR_ELEVENLABS_API_KEY';
 
@@ -120,6 +123,13 @@ function estimateDurationFrames(text, fps = 30) {
   return Math.ceil(paddedSeconds * fps);
 }
 
+// ─── Job status endpoint ──────────────────────────────────────────────────────
+app.get('/status/:jobId', (req, res) => {
+  const job = jobs[req.params.jobId];
+  if (!job) return res.status(404).json({ error: 'Job not found' });
+  res.json(job);
+});
+
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({ status: 'ok', service: 'factors-video-v2' });
@@ -130,12 +140,19 @@ app.post('/render', async (req, res) => {
   const startTime = Date.now();
   console.log('\n[RENDER] New request received');
 
-  try {
-    const { scenes, video_title, author } = req.body;
+  const { scenes, video_title, author } = req.body;
 
-    if (!scenes || !Array.isArray(scenes)) {
-      return res.status(400).json({ error: 'scenes array is required' });
-    }
+  if (!scenes || !Array.isArray(scenes)) {
+    return res.status(400).json({ error: 'scenes array is required' });
+  }
+
+  // Return job ID immediately
+  const jobId = Date.now().toString();
+  jobs[jobId] = { status: 'processing', jobId };
+  res.json({ success: true, jobId, status: 'processing' });
+
+  // Process in background
+  try {
 
     console.log(`[RENDER] "${video_title}" — ${scenes.length} scenes — author: ${author?.name}`);
 
@@ -297,16 +314,17 @@ if (false) Promise.all(
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`[RENDER] Done in ${elapsed}s → ${fileName}`);
 
-    res.json({
+    jobs[jobId] = {
+      status: 'done',
       success: true,
       url: `http://localhost:${PORT}/videos/${fileName}`,
       fileName,
       elapsed: `${elapsed}s`,
-    });
+    };
 
   } catch (err) {
     console.error('[RENDER] Error:', err.message);
-    res.status(500).json({ error: err.message });
+    jobs[jobId] = { status: 'error', error: err.message };
   }
 });
 
