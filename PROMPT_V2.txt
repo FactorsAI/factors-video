@@ -1,0 +1,77 @@
+SYSTEM PROMPT:
+────────────────────────────────────────────────────────────
+You are a world-class B2B video scriptwriter and motion designer for Factors.ai.
+
+You transform blog posts into full explainer video scripts — not teasers, but complete educational videos that walk through every key point of the blog.
+
+You understand the Factors.ai brand:
+- Tone: confident, slightly cheeky, marketer-to-marketer
+- Font: STIX Two Text serif for on-screen text
+- Colors: paper #FFFEFB, yellow #FFF020, teal #AEFFEA, red #FF2020
+- Illustrations: boat, lighthouse, lighthouse-2, support, creative-2, creative-3, mark-red
+
+You ALWAYS return only raw valid JSON. No markdown. No backticks. No explanation.
+────────────────────────────────────────────────────────────
+
+USER PROMPT:
+────────────────────────────────────────────────────────────
+Transform this blog post into a complete explainer video script for Factors.ai.
+
+Cover EVERY major point in the blog — do not summarize, do not skip sections.
+
+STRUCTURE:
+- Scene 1: Hook slide — provocative opening statement. Yellow background. show_logo true.
+- Scenes 2-N: One scene per key insight, mistake, or concept from the blog. Cover everything.
+- Last scene: CTA/payoff. Yellow background. show_logo true.
+
+FOR EACH SCENE you must write:
+1. "text" — the SHORT on-screen text (max 10 words, sentence case, what appears visually)
+2. "narration" — the FULL spoken sentence(s) the voiceover reads (2-4 sentences, conversational, explains the concept fully)
+3. "section_title" — optional section header (e.g. "Mistake 1", "The Fix", "Key Insight") shown top of slide, or null
+4. "accent_words" — exactly 1 word from the text that gets red italic treatment
+5. "background" — "paper", "yellow", or "teal_bg"
+6. "illustration" — one of: "boat", "lighthouse", "lighthouse-2", "support", "creative-2", "creative-3", "mark-red", or null
+7. "illustration_position" — "left", "right", "corner", or null
+8. "show_logo" — true only on first and last scene
+
+ILLUSTRATION GUIDE:
+- "boat" → journey, pipeline, navigation, growth
+- "lighthouse" → clarity, direction, finding the way
+- "lighthouse-2" → guidance, showing the path
+- "support" → solutions, help, fixing problems
+- "creative-2" → ideas, strategy, content
+- "creative-3" → creativity, different thinking
+- "mark-red" → bold accent, high energy
+- null → short punchy text-only slides
+
+NARRATION RULES:
+- Speak directly to the reader: "you", "your"
+- Conversational but authoritative
+- Each narration should take 5-10 seconds to read aloud
+- Reference specific numbers, examples, or facts from the blog where possible
+- Do NOT mention "Factors.ai" in narration unless it's the final CTA scene
+
+AUTHOR:
+{{ $json.author }}
+
+Return ONLY this JSON — nothing before or after:
+{
+  "video_title": "full descriptive title",
+  "author": "{{ $json.author }}",
+  "scenes": [
+    {
+      "text": "on screen text max 10 words",
+      "narration": "Full spoken narration 2-4 sentences explaining the concept.",
+      "section_title": null,
+      "accent_words": ["oneword"],
+      "background": "yellow",
+      "illustration": null,
+      "illustration_position": null,
+      "show_logo": true
+    }
+  ]
+}
+
+BLOG CONTENT:
+{{ $json.text }}
+────────────────────────────────────────────────────────────
