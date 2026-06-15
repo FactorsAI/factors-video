@@ -227,8 +227,7 @@ for (let i = 0; i < scenes.length; i++) {
     let durationFrames;
     try {
       const audioPath = path.join(AUDIO_DIR, audioFilename);
-      const metadata = await mm.parseFile(audioPath);
-      const durationSeconds = metadata.format.duration || 0;
+      const durationSeconds = await getMP3Duration(audioPath) || 15;
       durationFrames = Math.ceil((durationSeconds + 1.5) * 30);
       console.log(`[AUDIO] Scene ${i} duration: ${durationSeconds.toFixed(1)}s → ${durationFrames} frames`);
     } catch (err) {
