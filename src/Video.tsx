@@ -228,7 +228,7 @@ const AnimatedText: React.FC<{
         flexWrap: 'wrap',
         justifyContent: 'center',
         gap: '0.22em',
-        padding: '0 72px',
+        padding: '0 160px',
       }}
     >
       {words.map((word, i) => {
